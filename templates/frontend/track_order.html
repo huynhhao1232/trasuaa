@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tra cứu đơn hàng - Trà Sữa Online{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="track-order-card">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-search"></i> Tra cứu đơn hàng
+                </h2>
+                
+                <!-- Search Form -->
+                <div class="search-form mb-4">
+                    <form method="GET" action="{% url 'track-order' %}">
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   name="order_id" 
+                                   placeholder="Nhập mã đơn hàng (VD: 1, 2, 3...)" 
+                                   value="{{ order_id }}"
+                                   required>
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                <i class="fas fa-search"></i> Tra cứu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Order Results -->
+                {% if order_id %}
+                    {% if order %}
+                        <!-- Order Found -->
+                        <div class="order-details">
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Tìm thấy đơn hàng!
+                            </div>
+                            
+                            <!-- Order Info -->
+                            <div class="order-info mb-4">
+                                <h4 class="mb-3">Thông tin đơn hàng</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Mã đơn hàng:</strong> #{{ order.id }}</p>
+                                        <p><strong>Ngày đặt:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                                        <p><strong>Trạng thái:</strong> 
+                                            <span class="badge status-{{ order.status }}">
+                                                {{ order.status_display }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Tổng tiền:</strong> 
+                                            <span class="text-primary fw-bold">{{ order.formatted_total }}</span>
+                                        </p>
+                                        <p><strong>Phương thức thanh toán:</strong> {{ order.payment_method_display }}</p>
+                                        <p><strong>Thanh toán:</strong> 
+                                            {% if order.payment_status %}
+                                                <span class="text-success">Đã thanh toán</span>
+                                            {% else %}
+                                                <span class="text-warning">Chưa thanh toán</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Customer Info -->
+                            <div class="customer-info mb-4">
+                                <h5 class="mb-3">Thông tin khách hàng</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Họ tên:</strong> {{ order.customer_name }}</p>
+                                        <p><strong>Số điện thoại:</strong> {{ order.customer_phone }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Email:</strong> {{ order.customer_email|default:"Không có" }}</p>
+                                        <p><strong>Địa chỉ:</strong> {{ order.customer_address }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Items -->
+                            <div class="order-items mb-4">
+                                <h5 class="mb-3">Sản phẩm đã đặt</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Sản phẩm</th>
+                                                <th>Giá</th>
+                                                <th>Số lượng</th>
+                                                <th>Thành tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in order.items.all %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="{{ item.product.image.url }}" 
+                                                             alt="{{ item.product.name }}" 
+                                                             class="me-3" 
+                                                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                                        <div>
+                                                            <strong>{{ item.product.name }}</strong>
+                                                            <br>
+                                                            <small class="text-muted">{{ item.product.get_size_display }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>{{ item.formatted_price }}</td>
+                                                <td>{{ item.quantity }}</td>
+                                                <td class="fw-bold">{{ item.formatted_total }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="table-primary">
+                                                <th colspan="3">Tổng cộng</th>
+                                                <th class="text-primary">{{ order.formatted_total }}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Notes -->
+                            {% if order.notes %}
+                            <div class="order-notes mb-4">
+                                <h5 class="mb-3">Ghi chú</h5>
+                                <div class="alert alert-info">
+                                    {{ order.notes }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Status Timeline -->
+                            <div class="status-timeline">
+                                <h5 class="mb-3">Tiến trình đơn hàng</h5>
+                                <div class="timeline">
+                                    <div class="timeline-item {% if order.status == 'pending' %}active{% elif order.status in 'confirmed,preparing,ready,delivered' %}completed{% endif %}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>Đơn hàng đã được đặt</h6>
+                                            <p class="text-muted">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="timeline-item {% if order.status == 'confirmed' %}active{% elif order.status in 'preparing,ready,delivered' %}completed{% endif %}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>Đơn hàng đã được xác nhận</h6>
+                                            <p class="text-muted">Đang chờ xác nhận từ cửa hàng</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="timeline-item {% if order.status == 'preparing' %}active{% elif order.status in 'ready,delivered' %}completed{% endif %}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>Đang chuẩn bị</h6>
+                                            <p class="text-muted">Cửa hàng đang chuẩn bị đơn hàng</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="timeline-item {% if order.status == 'ready' %}active{% elif order.status == 'delivered' %}completed{% endif %}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>Sẵn sàng giao hàng</h6>
+                                            <p class="text-muted">Đơn hàng đã sẵn sàng để giao</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="timeline-item {% if order.status == 'delivered' %}active{% endif %}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>Đã giao hàng</h6>
+                                            <p class="text-muted">Đơn hàng đã được giao thành công</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Order Not Found -->
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            Không tìm thấy đơn hàng với mã <strong>{{ order_id }}</strong>. 
+                            Vui lòng kiểm tra lại mã đơn hàng.
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <!-- Instructions -->
+                    <div class="instructions">
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> Hướng dẫn tra cứu đơn hàng</h5>
+                            <ul class="mb-0">
+                                <li>Nhập mã đơn hàng vào ô tìm kiếm (VD: 1, 2, 3...)</li>
+                                <li>Mã đơn hàng được gửi đến email của bạn sau khi đặt hàng thành công</li>
+                                <li>Bạn có thể tra cứu trạng thái đơn hàng bất kỳ lúc nào</li>
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.track-order-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.search-form .input-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.search-form .form-control {
+    border: none;
+    padding: 15px 20px;
+    font-size: 1.1rem;
+}
+
+.search-form .btn {
+    border: none;
+    padding: 15px 30px;
+    font-weight: bold;
+}
+
+.order-details {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.status-pending { background-color: #ffc107; color: #000; }
+.status-confirmed { background-color: #17a2b8; color: #fff; }
+.status-preparing { background-color: #fd7e14; color: #fff; }
+.status-ready { background-color: #28a745; color: #fff; }
+.status-delivered { background-color: #6f42c1; color: #fff; }
+.status-cancelled { background-color: #dc3545; color: #fff; }
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #dee2e6;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.timeline-item.completed .timeline-marker {
+    background: #28a745;
+    box-shadow: 0 0 0 2px #28a745;
+}
+
+.timeline-item.active .timeline-marker {
+    background: #007bff;
+    box-shadow: 0 0 0 2px #007bff;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+}
+
+.timeline-content {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-content h6 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.timeline-content p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.instructions {
+    text-align: center;
+}
+
+.instructions .alert {
+    text-align: left;
+}
+</style>
+{% endblock %}

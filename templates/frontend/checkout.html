@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thanh toán - Trà Sữa Online{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="checkout-form">
+                <h3 class="mb-4">
+                    <i class="fas fa-credit-card"></i> Thông tin thanh toán
+                </h3>
+                
+                <form id="checkout-form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="customer_name" class="form-label">Họ và tên *</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="customer_phone" class="form-label">Số điện thoại *</label>
+                            <input type="tel" class="form-control" id="customer_phone" name="customer_phone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="customer_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="customer_email" name="customer_email">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="customer_address" class="form-label">Địa chỉ giao hàng *</label>
+                        <textarea class="form-control" id="customer_address" name="customer_address" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="payment_method" class="form-label">Phương thức thanh toán *</label>
+                        <select class="form-control" id="payment_method" name="payment_method" required>
+                            <option value="cod">Thanh toán khi nhận hàng</option>
+                            <option value="online">Thanh toán online</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Ghi chú thêm cho đơn hàng..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-check"></i> Đặt hàng
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="checkout-form">
+                <h4 class="mb-3">Đơn hàng của bạn</h4>
+                <div id="order-summary">
+                    <!-- Order summary will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load order summary when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        renderOrderSummary();
+        
+        // Handle form submission
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (cart.length === 0) {
+                showAlert('Giỏ hàng trống!', 'warning');
+                return;
+            }
+            
+            const formData = new FormData(this);
+            
+            // Add CSRF token to form data
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            submitOrder(formData);
+        });
+    });
+    
+    // Render order summary
+    function renderOrderSummary() {
+        const container = document.getElementById('order-summary');
+        if (!container) return;
+        
+        if (cart.length === 0) {
+            container.innerHTML = '<p class="text-muted">Giỏ hàng trống</p>';
+            return;
+        }
+        
+        let total = 0;
+        let html = '';
+        
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            
+            html += `
+                <div class="d-flex justify-content-between mb-2">
+                    <span>${item.name} x ${item.quantity}</span>
+                    <span>${formatPrice(itemTotal)}</span>
+                </div>
+            `;
+        });
+        
+        html += `
+            <hr>
+            <div class="d-flex justify-content-between">
+                <strong>Tổng cộng:</strong>
+                <strong class="text-primary">${formatPrice(total)}</strong>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+</script>
+{% endblock %}

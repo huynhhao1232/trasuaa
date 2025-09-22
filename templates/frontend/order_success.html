@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Đặt hàng thành công - Trà Sữa Online{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="text-center">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-5x text-success"></i>
+                </div>
+                
+                <h2 class="text-success mb-3">Đặt hàng thành công!</h2>
+                
+                <p class="lead mb-4">
+                    Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để xác nhận đơn hàng.
+                </p>
+                
+                <div class="alert alert-info">
+                    <h5>Thông tin đơn hàng:</h5>
+                    <p><strong>Mã đơn hàng:</strong> <span id="order-id">#</span></p>
+                    <p><strong>Phương thức thanh toán:</strong> Thanh toán khi nhận hàng</p>
+                    <p><strong>Thời gian giao hàng dự kiến:</strong> 30-45 phút</p>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="/" class="btn btn-primary me-3">
+                        <i class="fas fa-home"></i> Về trang chủ
+                    </a>
+                    <a href="{% url 'track-order' %}?order_id=" id="track-order-btn" class="btn btn-success me-3">
+                        <i class="fas fa-search"></i> Tra cứu đơn hàng
+                    </a>
+                    <a href="/admin-panel/orders/" class="btn btn-outline-primary">
+                        <i class="fas fa-list"></i> Xem đơn hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Get order ID from URL parameters
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('order_id');
+        
+        if (orderId) {
+            document.getElementById('order-id').textContent = '#' + orderId;
+            // Update track order button with order ID
+            const trackBtn = document.getElementById('track-order-btn');
+            trackBtn.href = trackBtn.href + orderId;
+        }
+    });
+</script>
+{% endblock %}

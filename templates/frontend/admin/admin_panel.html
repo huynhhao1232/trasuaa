@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Panel - Trà Sữa Online{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt"></i> Bảng điều khiển Admin
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="admin-panel text-center">
+                <i class="fas fa-box fa-3x text-primary mb-3"></i>
+                <h4>Quản lý sản phẩm</h4>
+                <p>Thêm, sửa, xóa sản phẩm</p>
+                <a href="{% url 'admin-products' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Quản lý sản phẩm
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="admin-panel text-center">
+                <i class="fas fa-shopping-bag fa-3x text-success mb-3"></i>
+                <h4>Quản lý đơn hàng</h4>
+                <p>Xem và cập nhật trạng thái đơn hàng</p>
+                <a href="{% url 'admin-orders' %}" class="btn btn-success">
+                    <i class="fas fa-arrow-right"></i> Quản lý đơn hàng
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="admin-panel text-center">
+                <i class="fas fa-images fa-3x text-info mb-3"></i>
+                <h4>Quản lý Banner</h4>
+                <p>Thêm, sửa, xóa banner trang chủ</p>
+                <a href="{% url 'admin-banners' %}" class="btn btn-info">
+                    <i class="fas fa-arrow-right"></i> Quản lý Banner
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="admin-panel text-center">
+                <i class="fas fa-cog fa-3x text-warning mb-3"></i>
+                <h4>Django Admin</h4>
+                <p>Truy cập giao diện quản trị Django</p>
+                <a href="/admin/" class="btn btn-warning" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Django Admin
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="admin-panel text-center">
+                <i class="fas fa-sign-out-alt fa-3x text-danger mb-3"></i>
+                <h4>Đăng xuất</h4>
+                <p>Thoát khỏi tài khoản admin</p>
+                <a href="{% url 'admin-logout' %}" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">Thống kê</h3>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="admin-card text-center">
+                <h5 class="text-primary" id="total-products">-</h5>
+                <p class="mb-0">Tổng sản phẩm</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="admin-card text-center">
+                <h5 class="text-warning" id="pending-orders">-</h5>
+                <p class="mb-0">Đơn hàng chờ xử lý</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="admin-card text-center">
+                <h5 class="text-info" id="confirmed-orders">-</h5>
+                <p class="mb-0">Đơn hàng đã xác nhận</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="admin-card text-center">
+                <h5 class="text-success" id="delivered-orders">-</h5>
+                <p class="mb-0">Đơn hàng đã giao</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load statistics when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStatistics();
+    });
+    
+    // Load statistics
+    async function loadStatistics() {
+        try {
+            // Load product stats
+            const productResponse = await fetch('/api/products/stats/');
+            const productStats = await productResponse.json();
+            
+            document.getElementById('total-products').textContent = productStats.total_products;
+            
+            // Load order stats
+            const orderResponse = await fetch('/api/orders/stats/');
+            const orderStats = await orderResponse.json();
+            
+            document.getElementById('pending-orders').textContent = orderStats.pending_orders;
+            document.getElementById('confirmed-orders').textContent = orderStats.confirmed_orders;
+            document.getElementById('delivered-orders').textContent = orderStats.delivered_orders;
+            
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+        }
+    }
+</script>
+{% endblock %}

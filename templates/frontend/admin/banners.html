@@ -1,0 +1,433 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quản lý Banner - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-images"></i> Quản lý Banner</h2>
+                <button class="btn btn-primary" onclick="openBannerModal()">
+                    <i class="fas fa-plus"></i> Thêm banner mới
+                </button>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="search-banners" placeholder="Tìm kiếm banner...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="filter-status">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="true">Đang hoạt động</option>
+                        <option value="false">Không hoạt động</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-outline-secondary w-100" onclick="filterBanners()">
+                        <i class="fas fa-filter"></i> Lọc
+                    </button>
+                </div>
+            </div>
+
+            <!-- Banners Container -->
+            <div id="banners-container" class="row">
+                <div class="loading">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Đang tải banner...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Banner Modal -->
+<div class="modal fade" id="bannerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bannerModalLabel">Thêm banner mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bannerForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bannerTitle" class="form-label">Tiêu đề</label>
+                                <input type="text" class="form-control" id="bannerTitle" name="title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bannerOrder" class="form-label">Thứ tự hiển thị</label>
+                                <input type="number" class="form-control" id="bannerOrder" name="order" min="0" value="0">
+                                <div class="form-text">Số nhỏ hơn sẽ hiển thị trước</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="bannerSubtitle" class="form-label">Phụ đề</label>
+                        <textarea class="form-control" id="bannerSubtitle" name="subtitle" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="bannerImage" class="form-label">Hình ảnh</label>
+                        <input type="file" class="form-control" id="bannerImage" name="image" accept="image/*" onchange="previewBannerImage(this)">
+                        <div id="bannerImagePreview" class="mt-2" style="display: none;">
+                            <div class="position-relative d-inline-block">
+                                <img id="previewBannerImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="hideBannerImagePreview()" style="transform: translate(50%, -50%);">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="bannerActive" name="is_active" checked>
+                        <label class="form-check-label" for="bannerActive">
+                            Đang hoạt động
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveBannerBtn" onclick="saveBanner()">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa banner này không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let allBanners = [];
+    let isEditMode = false;
+    let currentBannerId = null;
+
+    // Load banners when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadBanners();
+    });
+
+    // Load banners from API
+    async function loadBanners() {
+        try {
+            const response = await fetch('/api/products/banners/');
+            allBanners = await response.json();
+            renderBanners(allBanners);
+        } catch (error) {
+            console.error('Error loading banners:', error);
+            showAlert('Không thể tải danh sách banner', 'danger');
+        }
+    }
+
+    // Render banners
+    function renderBanners(banners) {
+        const container = document.getElementById('banners-container');
+        if (!container) return;
+        
+        if (banners.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted">Không có banner nào</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        banners.forEach(banner => {
+            const bannerDiv = document.createElement('div');
+            bannerDiv.className = 'col-md-6 col-lg-4 mb-4';
+            bannerDiv.innerHTML = `
+                <div class="admin-card">
+                    <div class="banner-preview">
+                        <img src="${banner.image}?t=${Date.now()}" alt="${banner.title}" class="img-fluid rounded" style="max-height: 200px; width: 100%; object-fit: cover;">
+                        <div class="banner-overlay">
+                            <h6 class="text-white">${banner.title}</h6>
+                            <p class="text-white-50 small">${banner.subtitle}</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge ${banner.is_active ? 'bg-success' : 'bg-secondary'}">
+                                ${banner.is_active ? 'Đang hoạt động' : 'Không hoạt động'}
+                            </span>
+                            <small class="text-muted">Thứ tự: ${banner.order}</small>
+                        </div>
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editBanner(${banner.id})">
+                                <i class="fas fa-edit"></i> Sửa
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBanner(${banner.id})">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(bannerDiv);
+        });
+    }
+
+    // Filter banners
+    function filterBanners() {
+        const searchTerm = document.getElementById('search-banners').value.toLowerCase();
+        const statusFilter = document.getElementById('filter-status').value;
+        
+        let filteredBanners = allBanners.filter(banner => {
+            const matchesSearch = banner.title.toLowerCase().includes(searchTerm) || 
+                                banner.subtitle.toLowerCase().includes(searchTerm);
+            const matchesStatus = !statusFilter || banner.is_active.toString() === statusFilter;
+            
+            return matchesSearch && matchesStatus;
+        });
+        
+        renderBanners(filteredBanners);
+    }
+
+    // Open banner modal for adding new banner
+    function openBannerModal() {
+        isEditMode = false;
+        currentBannerId = null;
+        document.getElementById('bannerModalLabel').textContent = 'Thêm banner mới';
+        document.getElementById('saveBannerBtn').innerHTML = '<i class="fas fa-save"></i> Lưu';
+        document.getElementById('bannerForm').reset();
+        document.getElementById('bannerActive').checked = true;
+        hideBannerImagePreview();
+    }
+
+    // Preview banner image
+    function previewBannerImage(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.', 'warning');
+                input.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewBannerImg').src = e.target.result;
+                document.getElementById('bannerImagePreview').style.display = 'block';
+                
+                // Show file info
+                const fileInfo = document.createElement('small');
+                fileInfo.className = 'text-muted d-block mt-1';
+                fileInfo.textContent = `Kích thước: ${fileSize} MB`;
+                document.getElementById('bannerImagePreview').appendChild(fileInfo);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Hide banner image preview
+    function hideBannerImagePreview() {
+        document.getElementById('bannerImagePreview').style.display = 'none';
+        document.getElementById('bannerImage').value = '';
+        const fileInfo = document.querySelector('#bannerImagePreview small');
+        if (fileInfo) fileInfo.remove();
+    }
+
+    // Edit banner
+    function editBanner(bannerId) {
+        const banner = allBanners.find(b => b.id === bannerId);
+        if (!banner) return;
+        
+        isEditMode = true;
+        currentBannerId = bannerId;
+        document.getElementById('bannerModalLabel').textContent = 'Sửa banner';
+        document.getElementById('saveBannerBtn').innerHTML = '<i class="fas fa-save"></i> Cập nhật';
+        
+        // Fill form with banner data
+        document.getElementById('bannerTitle').value = banner.title;
+        document.getElementById('bannerSubtitle').value = banner.subtitle;
+        document.getElementById('bannerOrder').value = banner.order;
+        document.getElementById('bannerActive').checked = banner.is_active;
+        
+        // Show current image
+        if (banner.image) {
+            document.getElementById('previewBannerImg').src = banner.image;
+            document.getElementById('bannerImagePreview').style.display = 'block';
+        } else {
+            hideBannerImagePreview();
+        }
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('bannerModal'));
+        modal.show();
+    }
+
+    // Save banner
+    async function saveBanner() {
+        const form = document.getElementById('bannerForm');
+        const formData = new FormData(form);
+
+        // Validate required fields
+        if (!formData.get('title') || !formData.get('subtitle')) {
+            showAlert('Vui lòng điền đầy đủ thông tin', 'warning');
+            return;
+        }
+
+        try {
+            const saveBtn = document.getElementById('saveBannerBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+
+            let response;
+            if (isEditMode) {
+                // Update existing banner
+                response = await fetch(`/api/admin/banners/${currentBannerId}/`, {
+                    method: 'POST',
+                    body: formData
+                });
+            } else {
+                // Create new banner
+                response = await fetch('/api/admin/banners/', {
+                    method: 'POST',
+                    body: formData
+                });
+            }
+
+            if (response.ok) {
+                const result = await response.json();
+                let message = isEditMode ? 'Cập nhật banner thành công!' : 'Thêm banner thành công!';
+                showAlert(message, 'success');
+
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('bannerModal'));
+                modal.hide();
+
+                // Reload banners
+                await loadBanners();
+            } else {
+                const error = await response.json();
+                showAlert('Có lỗi xảy ra: ' + (error.error || 'Vui lòng thử lại'), 'danger');
+            }
+        } catch (error) {
+            console.error('Error saving banner:', error);
+            showAlert('Có lỗi xảy ra khi lưu banner', 'danger');
+        } finally {
+            const saveBtn = document.getElementById('saveBannerBtn');
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = isEditMode ? '<i class="fas fa-save"></i> Cập nhật' : '<i class="fas fa-save"></i> Lưu';
+        }
+    }
+
+    // Delete banner
+    function deleteBanner(bannerId) {
+        currentBannerId = bannerId;
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+
+    // Confirm delete
+    async function confirmDelete() {
+        try {
+            const response = await fetch(`/api/admin/banners/${currentBannerId}/delete/`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                showAlert('Xóa banner thành công!', 'success');
+                await loadBanners();
+            } else {
+                const error = await response.json();
+                showAlert('Có lỗi xảy ra: ' + (error.error || 'Vui lòng thử lại'), 'danger');
+            }
+        } catch (error) {
+            console.error('Error deleting banner:', error);
+            showAlert('Có lỗi xảy ra khi xóa banner', 'danger');
+        } finally {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+            modal.hide();
+        }
+    }
+
+    // Show alert
+    function showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container-fluid');
+        if (container) {
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 3000);
+        }
+    }
+</script>
+
+<style>
+.banner-preview {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.banner-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    padding: 20px 15px 15px;
+    color: white;
+}
+
+.banner-overlay h6 {
+    margin: 0;
+    font-weight: bold;
+}
+
+.banner-overlay p {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}

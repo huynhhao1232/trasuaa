@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Giỏ hàng - Trà Sữa Online{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div id="cart-container">
+                <div class="loading">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Đang tải giỏ hàng...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load cart when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        renderCart();
+    });
+</script>
+{% endblock %}

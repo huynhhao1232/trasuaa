@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Trang chủ - Trà Sữa Online{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1>Trà Sữa Online</h1>
+        <p>Thưởng thức những ly trà sữa thơm ngon, chất lượng cao</p>
+        <a href="#products" class="btn btn-light btn-lg">Khám phá ngay</a>
+    </div>
+</section>
+
+<!-- Banners Section -->
+<section class="banner-section">
+    <div class="container">
+        <h2 class="text-center mb-4">Ưu đãi đặc biệt</h2>
+        <div class="row" id="banners-container">
+            <div class="loading">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Đang tải banner...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Products Section -->
+<section id="products" class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Sản phẩm nổi bật</h2>
+        <div class="row" id="products-container">
+            <div class="loading">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Đang tải sản phẩm...</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load data when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadBanners();
+        loadProducts();
+    });
+</script>
+{% endblock %}

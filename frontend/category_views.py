@@ -34,10 +34,15 @@ def create_category(request):
         if not data.get('name'):
             return JsonResponse({'error': 'Tên danh mục là bắt buộc'}, status=400)
         
+        # Convert checkbox value to boolean
+        is_active = data.get('is_active', True)
+        if isinstance(is_active, str):
+            is_active = is_active == 'on'
+        
         category = Category.objects.create(
             name=data['name'],
             description=data.get('description', ''),
-            is_active=data.get('is_active', True)
+            is_active=is_active
         )
         
         serializer = CategorySerializer(category)
@@ -69,7 +74,10 @@ def update_category(request, category_id):
         if 'description' in data:
             category.description = data['description']
         if 'is_active' in data:
-            category.is_active = data['is_active'] == 'on' if isinstance(data['is_active'], str) else data['is_active']
+            is_active = data['is_active']
+            if isinstance(is_active, str):
+                is_active = is_active == 'on'
+            category.is_active = is_active
         
         category.save()
         
@@ -94,7 +102,7 @@ def delete_category(request, category_id):
         category = Category.objects.get(id=category_id)
         
         # Check if category has products
-        if category.products.exists():
+        if category.product_set.exists():
             return JsonResponse({'error': 'Không thể xóa danh mục có sản phẩm'}, status=400)
         
         category.delete()

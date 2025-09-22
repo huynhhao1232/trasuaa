@@ -3,9 +3,14 @@ from .models import Category, Product, Banner
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    product_count = serializers.SerializerMethodField()
+    
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'description', 'is_active', 'product_count', 'created_at']
+    
+    def get_product_count(self, obj):
+        return obj.products.count()
 
 
 class ProductSerializer(serializers.ModelSerializer):

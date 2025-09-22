@@ -91,6 +91,14 @@ def admin_products(request):
 
 
 @login_required(login_url='/admin-login/')
+def admin_categories(request):
+    """Trang quản lý danh mục"""
+    if not request.user.is_staff:
+        return redirect('admin-login')
+    return render(request, 'frontend/admin/categories.html')
+
+
+@login_required(login_url='/admin-login/')
 def admin_orders(request):
     """Trang quản lý đơn hàng"""
     if not request.user.is_staff:

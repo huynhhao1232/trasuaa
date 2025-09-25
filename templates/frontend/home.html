@@ -5,18 +5,112 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section">
+<section class="hero-section-modern">
+    <div class="hero-background">
+        <div class="hero-overlay"></div>
+        <div class="hero-particles"></div>
+    </div>
     <div class="container">
-        <h1>Trà Sữa Online</h1>
-        <p>Thưởng thức những ly trà sữa thơm ngon, chất lượng cao</p>
-        <a href="#products" class="btn btn-light btn-lg">Khám phá ngay</a>
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <span class="hero-title-main">Trà Sữa</span>
+                        <span class="hero-title-sub">Online</span>
+                    </h1>
+                    <p class="hero-description">
+                        Thưởng thức những ly trà sữa thơm ngon, chất lượng cao 
+                        được pha chế từ những nguyên liệu tươi ngon nhất
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#products" class="btn btn-hero-primary">
+                            <i class="fas fa-shopping-bag me-2"></i>
+                            Khám phá ngay
+                        </a>
+                        <a href="#about" class="btn btn-hero-secondary">
+                            <i class="fas fa-play me-2"></i>
+                            Tìm hiểu thêm
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <h3>500+</h3>
+                            <p>Khách hàng hài lòng</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>50+</h3>
+                            <p>Loại trà sữa</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>24/7</h3>
+                            <p>Giao hàng nhanh</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image">
+                    <div class="hero-image-container">
+                        <img src="{% static 'images/hero-bubble-tea.png' %}" alt="Trà sữa" class="hero-main-image">
+                        <div class="floating-elements">
+                            <div class="floating-bubble bubble-1"></div>
+                            <div class="floating-bubble bubble-2"></div>
+                            <div class="floating-bubble bubble-3"></div>
+                            <div class="floating-bubble bubble-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">Tại sao chọn chúng tôi?</h2>
+                <p class="section-subtitle">Những ưu điểm vượt trội của Trà Sữa Online</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h4>Nguyên liệu tươi ngon</h4>
+                    <p>100% nguyên liệu tự nhiên, không chất bảo quản, đảm bảo an toàn sức khỏe</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h4>Giao hàng nhanh</h4>
+                    <p>Giao hàng trong 30 phút, đảm bảo trà sữa luôn tươi ngon khi đến tay khách hàng</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h4>Chất lượng 5 sao</h4>
+                    <p>Được đánh giá cao bởi hàng nghìn khách hàng với chất lượng và hương vị tuyệt vời</p>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
 <!-- Banners Section -->
-<section class="banner-section">
+<section class="banner-section-modern">
     <div class="container">
-        <h2 class="text-center mb-4">Ưu đãi đặc biệt</h2>
+        <h2 class="section-title">Ưu đãi đặc biệt</h2>
+        <p class="section-subtitle">Những chương trình khuyến mãi hấp dẫn dành cho bạn</p>
         <div class="row" id="banners-container">
             <div class="loading">
                 <div class="spinner-border" role="status">
@@ -29,15 +123,158 @@
 </section>
 
 <!-- Products Section -->
-<section id="products" class="py-5">
+<section id="products" class="products-section-modern">
     <div class="container">
-        <h2 class="text-center mb-5">Sản phẩm nổi bật</h2>
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">Sản phẩm nổi bật</h2>
+                <p class="section-subtitle">Khám phá menu trà sữa đa dạng và hấp dẫn</p>
+            </div>
+        </div>
+        
+        <!-- Product Filter -->
+        <div class="product-filter">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Tất cả</button>
+                <button class="filter-btn" data-filter="featured">Nổi bật</button>
+                <button class="filter-btn" data-filter="sale">Khuyến mãi</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="product-search" placeholder="Tìm kiếm sản phẩm...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        
         <div class="row" id="products-container">
             <div class="loading">
                 <div class="spinner-border" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
                 <p>Đang tải sản phẩm...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">Khách hàng nói gì về chúng tôi</h2>
+                <p class="section-subtitle">Những phản hồi chân thực từ khách hàng</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"Trà sữa ở đây thật sự tuyệt vời! Hương vị thơm ngon, nguyên liệu tươi ngon. Tôi đã đặt hàng nhiều lần và luôn hài lòng."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5>Nguyễn Thị Mai</h5>
+                            <span>Khách hàng thân thiết</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"Giao hàng rất nhanh, đúng giờ. Trà sữa vẫn còn nóng và thơm ngon. Dịch vụ khách hàng cũng rất tốt!"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5>Trần Văn Nam</h5>
+                            <span>Khách hàng mới</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"Menu đa dạng, giá cả hợp lý. Đặc biệt là các loại trà sữa đặc biệt rất ngon. Sẽ tiếp tục ủng hộ!"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5>Lê Thị Hoa</h5>
+                            <span>Food Blogger</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Info Section -->
+<section id="contact" class="contact-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">Liên hệ với chúng tôi</h2>
+                <p class="section-subtitle">Chúng tôi luôn sẵn sàng phục vụ bạn</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h4>Địa chỉ</h4>
+                    <p>123 Đường ABC, Quận 1<br>TP. Hồ Chí Minh</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h4>Điện thoại</h4>
+                    <p>0123 456 789<br>0987 654 321</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h4>Giờ mở cửa</h4>
+                    <p>Thứ 2 - Chủ nhật<br>8:00 - 22:00</p>
+                </div>
             </div>
         </div>
     </div>
@@ -50,6 +287,63 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadBanners();
         loadProducts();
+        initProductFilter();
+        initProductSearch();
     });
+    
+    // Initialize product filter
+    function initProductFilter() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const productCards = document.querySelectorAll('.product-card');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                productCards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'block';
+                    } else {
+                        const productId = card.querySelector('.btn-add-to-cart').getAttribute('data-product-id');
+                        const product = products.find(p => p.id == productId);
+                        
+                        if (filter === 'featured' && product.is_featured) {
+                            card.style.display = 'block';
+                        } else if (filter === 'sale' && product.status === 'sale') {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    }
+    
+    // Initialize product search
+    function initProductSearch() {
+        const searchInput = document.getElementById('product-search');
+        const productCards = document.querySelectorAll('.product-card');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            productCards.forEach(card => {
+                const productName = card.querySelector('.product-title').textContent.toLowerCase();
+                const productDesc = card.querySelector('.product-description').textContent.toLowerCase();
+                
+                if (productName.includes(searchTerm) || productDesc.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
 </script>
 {% endblock %}

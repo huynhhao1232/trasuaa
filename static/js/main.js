@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add event listeners
     document.addEventListener('click', handleClick);
+    
+    // Initialize sticky navbar
+    initStickyNavbar();
 });
 
 // Handle click events
@@ -23,14 +26,14 @@ function handleClick(e) {
         addToCart(productId);
     }
     
-    if (e.target.classList.contains('quantity-btn')) {
-        const action = e.target.dataset.action;
-        const productId = parseInt(e.target.dataset.productId);
+    if (e.target.classList.contains('quantity-btn') || e.target.classList.contains('quantity-btn-modern')) {
+        const action = e.target.getAttribute('data-action');
+        const productId = parseInt(e.target.getAttribute('data-product-id'));
         updateQuantity(productId, action);
     }
     
-    if (e.target.classList.contains('remove-item')) {
-        const productId = parseInt(e.target.dataset.productId);
+    if (e.target.classList.contains('remove-item') || e.target.classList.contains('remove-btn-modern')) {
+        const productId = parseInt(e.target.getAttribute('data-product-id'));
         removeFromCart(productId);
     }
 }
@@ -68,6 +71,12 @@ function renderProducts() {
     products.forEach(product => {
         const productCard = createProductCard(product);
         container.appendChild(productCard);
+        
+        // Check if product is in cart and update status
+        const item = cart.find(item => item.id === product.id);
+        if (item) {
+            updateProductStatus(product.id, true);
+        }
     });
 }
 
@@ -122,7 +131,7 @@ function createProductCard(product) {
                             `<span class="product-price">${product.formatted_price}</span>`
                         }
                     </div>
-                    <span class="size-badge">${product.get_size_display}</span>
+                    <span class="size-badge" id="status-${product.id}">${product.get_size_display}</span>
                 </div>
                 <button class="btn btn-add-to-cart" data-product-id="${product.id}">
                     <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
@@ -180,6 +189,10 @@ function addToCart(productId) {
     
     saveCart();
     updateCartCount();
+    
+    // Update status badge to show "Đã chọn"
+    updateProductStatus(productId, true);
+    
     showAlert(`${product.name} đã được thêm vào giỏ hàng!`, 'success');
 }
 
@@ -205,6 +218,10 @@ function removeFromCart(productId) {
     saveCart();
     updateCartCount();
     renderCart();
+    
+    // Update status badge back to original size
+    updateProductStatus(productId, false);
+    
     showAlert('Sản phẩm đã được xóa khỏi giỏ hàng!', 'info');
 }
 
@@ -219,58 +236,71 @@ function updateCartCount() {
     if (countElement) {
         const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
         countElement.textContent = totalItems;
+        
+        // Add/remove animation class based on cart content
+        if (totalItems > 0) {
+            countElement.classList.add('has-items');
+        } else {
+            countElement.classList.remove('has-items');
+        }
     }
 }
 
 // Render cart page
 function renderCart() {
     const container = document.getElementById('cart-container');
-    if (!container) return;
+    const emptyState = document.getElementById('cart-empty');
     
+    if (!container) return;
+
     if (cart.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-5">
-                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                <h4>Giỏ hàng trống</h4>
-                <p>Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm!</p>
-                <a href="/" class="btn btn-primary">Tiếp tục mua sắm</a>
-            </div>
-        `;
+        container.style.display = 'none';
+        if (emptyState) {
+            emptyState.style.display = 'block';
+        }
         return;
     }
-    
+
+    // Hide empty state and show cart
+    if (emptyState) {
+        emptyState.style.display = 'none';
+    }
+    container.style.display = 'block';
+
     let total = 0;
     container.innerHTML = '';
-    
+
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
-        
+
         const cartItem = document.createElement('div');
-        cartItem.className = 'cart-item';
+        cartItem.className = 'cart-item-modern';
         cartItem.innerHTML = `
-            <div class="row align-items-center">
-                <div class="col-md-2">
+            <div class="cart-item-content">
+                <div class="cart-item-image-container">
                     <img src="${item.image}" alt="${item.name}" class="cart-item-image">
                 </div>
-                <div class="col-md-4">
-                    <h6>${item.name}</h6>
+                <div class="cart-item-details">
+                    <h5 class="cart-item-name">${item.name}</h5>
+                    <p class="cart-item-price">${formatPrice(item.price)} mỗi sản phẩm</p>
                 </div>
-                <div class="col-md-2">
-                    <span class="text-muted">${formatPrice(item.price)}</span>
-                </div>
-                <div class="col-md-2">
-                    <div class="quantity-controls">
-                        <button class="btn btn-sm quantity-btn" data-action="decrease" data-product-id="${item.id}">-</button>
-                        <span class="mx-2">${item.quantity}</span>
-                        <button class="btn btn-sm quantity-btn" data-action="increase" data-product-id="${item.id}">+</button>
+                <div class="cart-item-quantity">
+                    <div class="quantity-controls-modern">
+                        <button class="quantity-btn-modern decrease" data-action="decrease" data-product-id="${item.id}">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="quantity-number">${item.quantity}</span>
+                        <button class="quantity-btn-modern increase" data-action="increase" data-product-id="${item.id}">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="col-md-1">
-                    <span class="fw-bold">${formatPrice(itemTotal)}</span>
+                <div class="cart-item-total">
+                    <span class="total-price">${formatPrice(itemTotal)}</span>
                 </div>
-                <div class="col-md-1">
-                    <button class="btn btn-sm btn-outline-danger remove-item" data-product-id="${item.id}">
+                <div class="cart-item-actions">
+                    <button class="remove-btn-modern" data-product-id="${item.id}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -278,13 +308,23 @@ function renderCart() {
         `;
         container.appendChild(cartItem);
     });
-    
+
     // Add total and checkout button
     const totalDiv = document.createElement('div');
-    totalDiv.className = 'text-end mt-4';
+    totalDiv.className = 'cart-summary-modern';
     totalDiv.innerHTML = `
-        <h5>Tổng cộng: <span class="text-primary">${formatPrice(total)}</span></h5>
-        <a href="/checkout/" class="btn btn-primary btn-lg">Thanh toán</a>
+        <div class="summary-card">
+            <div class="summary-content">
+                <h3 class="summary-title">Tổng cộng</h3>
+                <div class="summary-total">
+                    <span class="total-amount">${formatPrice(total)}</span>
+                </div>
+                <button class="checkout-btn-modern" onclick="window.location.href='/checkout/'">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Thanh toán ngay</span>
+                </button>
+            </div>
+        </div>
     `;
     container.appendChild(totalDiv);
 }
@@ -326,7 +366,6 @@ async function submitOrder(formData) {
             customer_name: formData.get('customer_name'),
             customer_phone: formData.get('customer_phone'),
             customer_address: formData.get('customer_address'),
-            customer_email: formData.get('customer_email'),
             payment_method: formData.get('payment_method'),
             notes: formData.get('notes'),
             items: cart.map(item => ({
@@ -438,4 +477,73 @@ async function updateOrderStatus(orderId, newStatus) {
         console.error('Error updating order status:', error);
         showAlert('Có lỗi xảy ra khi cập nhật trạng thái', 'danger');
     }
+}
+
+// Update product status badge
+function updateProductStatus(productId, isSelected) {
+    const statusElement = document.getElementById(`status-${productId}`);
+    if (statusElement) {
+        if (isSelected) {
+            statusElement.textContent = 'Đã chọn';
+            statusElement.className = 'size-badge selected-badge';
+        } else {
+            // Find the product to get its original size
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                statusElement.textContent = product.get_size_display;
+                statusElement.className = 'size-badge';
+            }
+        }
+    }
+}
+
+// Initialize sticky navbar functionality
+function initStickyNavbar() {
+    const navbar = document.querySelector('.navbar');
+    if (!navbar) return;
+    
+    let lastScrollTop = 0;
+    let ticking = false;
+    
+    function updateNavbar() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Add scrolled class when scrolling down
+        if (scrollTop > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+        
+        // Always keep navbar visible - no hiding/showing
+        navbar.style.transform = 'translateY(0)';
+        
+        lastScrollTop = scrollTop;
+        ticking = false;
+    }
+    
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(updateNavbar);
+            ticking = true;
+        }
+    }
+    
+    // Listen for scroll events
+    window.addEventListener('scroll', requestTick, { passive: true });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                const offsetTop = target.offsetTop - 80; // Account for fixed navbar
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
 }

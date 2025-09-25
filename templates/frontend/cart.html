@@ -4,24 +4,55 @@
 {% block title %}Giỏ hàng - Trà Sữa Online{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mb-4">
-                <i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn
-            </h2>
+<!-- Cart Header -->
+<section class="cart-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="cart-header-content">
+                    <h1 class="cart-title">
+                        <i class="fas fa-shopping-cart"></i>
+                        Giỏ hàng của bạn
+                    </h1>
+                    <p class="cart-subtitle">Kiểm tra và thanh toán đơn hàng của bạn</p>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="row">
-        <div class="col-12">
-            <div id="cart-container">
-                <div class="loading">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
+</section>
+
+<!-- Cart Content -->
+<section class="cart-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div id="cart-container">
+                    <div class="loading">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Đang tải giỏ hàng...</p>
                     </div>
-                    <p>Đang tải giỏ hàng...</p>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cart Empty State -->
+<div id="cart-empty" class="cart-empty-state" style="display: none;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <div class="empty-cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3>Giỏ hàng trống</h3>
+                <p>Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá menu và thêm sản phẩm yêu thích!</p>
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Tiếp tục mua sắm
+                </a>
             </div>
         </div>
     </div>

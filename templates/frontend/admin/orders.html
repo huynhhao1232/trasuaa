@@ -76,7 +76,7 @@
     // Load orders
     async function loadOrders() {
         try {
-            const response = await fetch('/api/orders/orders/');
+            const response = await fetch('/api/orders/');
             allOrders = await response.json();
             renderOrders(allOrders);
         } catch (error) {

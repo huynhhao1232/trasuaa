@@ -118,8 +118,9 @@ webtrasua/
 - `GET /api/products/banners/` - Lấy banner
 
 ### Orders
-- `GET /api/orders/orders/` - Lấy danh sách đơn hàng
-- `POST /api/orders/orders/create/` - Tạo đơn hàng mới
+- `GET /api/orders/` - Lấy danh sách đơn hàng
+- `POST /api/orders/create/` - Tạo đơn hàng mới
+- `PATCH /api/orders/{id}/status/` - Cập nhật trạng thái đơn hàng
 
 ### Admin
 - `POST /api/admin/products/` - Tạo sản phẩm

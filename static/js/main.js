@@ -378,7 +378,7 @@ async function submitOrder(formData) {
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
                          document.querySelector('meta[name=csrf-token]')?.getAttribute('content');
         
-        const response = await fetch('/api/orders/orders/create/', {
+        const response = await fetch('/api/orders/create/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -409,7 +409,7 @@ async function submitOrder(formData) {
 // Load orders for admin
 async function loadOrders() {
     try {
-        const response = await fetch('/api/orders/orders/');
+        const response = await fetch('/api/orders/');
         const orders = await response.json();
         renderOrders(orders);
     } catch (error) {
@@ -459,10 +459,15 @@ function renderOrders(orders) {
 // Update order status
 async function updateOrderStatus(orderId, newStatus) {
     try {
-        const response = await fetch(`/api/orders/orders/${orderId}/status/`, {
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                         document.querySelector('meta[name=csrf-token]')?.getAttribute('content');
+        
+        const response = await fetch(`/api/orders/${orderId}/status/`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify({ status: newStatus })
         });
@@ -471,6 +476,9 @@ async function updateOrderStatus(orderId, newStatus) {
             showAlert('Cập nhật trạng thái đơn hàng thành công!', 'success');
             loadOrders(); // Reload orders
         } else {
+            console.error('Order status update failed:', response.status, response.statusText);
+            const errorData = await response.text();
+            console.error('Error response:', errorData);
             showAlert('Có lỗi xảy ra khi cập nhật trạng thái', 'danger');
         }
     } catch (error) {

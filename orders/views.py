@@ -50,6 +50,7 @@ def order_stats(request):
 
 
 @api_view(['PATCH'])
+@csrf_exempt
 def update_order_status(request, order_id):
     """API endpoint để cập nhật trạng thái đơn hàng"""
     try:
